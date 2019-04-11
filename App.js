@@ -8,21 +8,26 @@
 
 import React, { Component } from "react";
 import {
+  AsyncStorage,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-  ScrollView,
+  View
 } from "react-native";
-import TodoList from './TodoList'
+import TodoList from "./TodoList";
 
 type Props = {};
 export default class App extends Component<Props> {
   state = {
     newTodo: "",
-    todos: [],
+    todos: []
   };
+
+  constructor(props) {
+    super(props)
+    this.loadTodos()
+  }
 
   onChangeText(newTodo) {
     this.setState({ newTodo });
@@ -30,21 +35,40 @@ export default class App extends Component<Props> {
 
   onPressAdd() {
     console.log(this.state.newTodo);
-    const { newTodo } = this.state
-    this.setState({
-      newTodo: '',
-      todos: [ newTodo, ...this.state.todos ],
-    })
+    const { newTodo } = this.state;
+    this.setState(
+      {
+        newTodo: "",
+        todos: [newTodo, ...this.state.todos]
+      },
+      () => this.storeTodos()
+    );
   }
 
   onPressDelete(index) {
-    this.setState({
-      todos: this.state.todos.filter((t,i) => i !== index),
-    })
+    this.setState(
+      {
+        todos: this.state.todos.filter((t, i) => i !== index)
+      },
+      () => this.storeTodos()
+    );
+  }
+
+  storeTodos() {
+    const str = JSON.stringify(this.state.todos);
+    AsyncStorage.setItem("todos", str);
+  }
+
+  loadTodos() {
+    AsyncStorage.getItem("todos").then(str => {
+      this.setState({
+        todos: str ? JSON.parse(str) : []
+      });
+    });
   }
 
   render() {
-    console.log(this.state)
+    console.log(this.state);
     return (
       <View style={styles.container}>
         <TextInput
@@ -62,8 +86,8 @@ export default class App extends Component<Props> {
         </TouchableOpacity>
         <TodoList
           todos={this.state.todos}
-          onPressDelete={(index) => this.onPressDelete(index)}
-        ></TodoList>
+          onPressDelete={index => this.onPressDelete(index)}
+        />
       </View>
     );
   }
@@ -91,5 +115,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontWeight: "bold"
-  },
+  }
 });
