@@ -11,12 +11,21 @@ import React, {Component} from 'react';
 
 type Props = {};
 export default class App extends Component<Props> {
+  state = {
+    newTodo: '',
+  }
+
+  onChangeText(newTodo) {
+    this.setState({newTodo})
+  }
+
   render() {
+    console.log(this.state)
     return (
       <View style={styles.container}>
         <TextInput
           style={styles.form}
-          onChangeText={text => {console.log(text)} }
+          onChangeText={text => {this.onChangeText(text)} }
         />
       </View>
     );
